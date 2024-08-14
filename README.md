@@ -1,4 +1,4 @@
-# API-cotacao-json-xml
+# API-cotacao-json-xml-SSW
 
 ## Essa API é viável apenas para os casos onde é necessário fazer a requisição no modelo JSON.
 
