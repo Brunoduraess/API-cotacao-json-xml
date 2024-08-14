@@ -98,8 +98,6 @@ XML;
 
     $responseArray = json_decode($responseJson, true);
 
-    include ('conexao.php');
-
     if ($responseArray['mensagem'] == "OK"){
         $status = "OK";
         $errorMessage = "";
@@ -107,6 +105,8 @@ XML;
         $status = "ERRO";
         $errorMessage = $responseArray['mensagem'];
     }
+
+    include ('conexao.php');
 
     $grava_log = "INSERT INTO api_cotacao(user, phone, request, response, status, error_message) VALUES (
         '" . $requestData['contact.name'] . "',
