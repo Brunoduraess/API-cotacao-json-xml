@@ -14,6 +14,12 @@ function limparCaracteres($valor)
 function validarPontosEValores($valor)
 {
 
+    $caracteresRemover = array('R', 'r', '$');
+
+    // Remove os caracteres da string
+    $valor = str_replace($caracteresRemover, '', $valor);
+
+
     $valor = str_replace(',', '.', $valor);
 
     // Contar quantos pontos existem na string
