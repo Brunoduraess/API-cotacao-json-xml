@@ -17,7 +17,6 @@ $cep_origem = limparCaracteres($requestData['cepOrigem']);
 $cep_destino = limparCaracteres($requestData['cepDestino']);
 $valor = validarPontosEValores($requestData['valorNF']);
 
-// Possibilidade de calcular o volume na API, caso não consiga realizar a requisição já com os dados tratados
 // $volume = $requestData['quantidade'] * $requestData['altura'] * $requestData['largura'] * $requestData['comprimento'];
 
 $observacao = $requestData['material'] . " - " . $requestData['embalagem'];
@@ -50,6 +49,9 @@ if ($requestData) {
          <entDificil xsi:type="xsd:string">{$requestData['entDificil']}</entDificil>
          <destContribuinte xsi:type="xsd:string">{$requestData['destContribuinte']}</destContribuinte>
          <qtdePares xsi:type="xsd:integer">{$requestData['qtdePares']}</qtdePares>
+         <!-- <altura xsi:type="xsd:decimal">{$requestData['altura']}</altura>
+         <largura xsi:type="xsd:decimal">{$requestData['largura']}</largura>
+         <comprimento xsi:type="xsd:decimal">{$requestData['comprimento']}</comprimento> -->
          <fatorMultiplicador xsi:type="xsd:integer">{$requestData['fatorMultiplicador']}</fatorMultiplicador>
       </urn:cotar>
    </soapenv:Body>
@@ -96,6 +98,8 @@ XML;
 
     $responseArray = json_decode($responseJson, true);
 
+    include ('conexao.php');
+
     if ($responseArray['mensagem'] == "OK"){
         $status = "OK";
         $errorMessage = "";
@@ -104,11 +108,9 @@ XML;
         $errorMessage = $responseArray['mensagem'];
     }
 
-    include ('conexao.php');
-
     $grava_log = "INSERT INTO api_cotacao(user, phone, request, response, status, error_message) VALUES (
         '" . $requestData['contact.name'] . "',
-        '" . $requestData['telefone'] . "',
+        '" . $requestData['contact.number'] . "',
         '" . $jsonData . "',
         '" . $responseJson . "',
         '" . $status . "', 
