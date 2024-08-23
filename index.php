@@ -1,6 +1,6 @@
 <?php
 // Defina o token de autorização esperado
-$expectedToken = "Bearer e0c6fd31-b699-46ae-95cd-efebfcd78f55";
+$expectedToken = "";
 
 // Captura o cabeçalho "Authorization"
 $headers = apache_request_headers();
