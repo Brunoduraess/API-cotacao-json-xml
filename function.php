@@ -43,10 +43,7 @@ function validarPontosEValores($valor)
         $valor = trim($valor);
 
         // Remove os pontos de milhar
-        $valorSemPonto = str_replace('.', '', $valor);
-
-        // Substitui a vírgula decimal por um ponto
-        $valorConvertido = str_replace(',', '.', $valorSemPonto);
+        $valorConvertido = str_replace('.', '', $valor);
 
         // Certifica-se de que o valor é formatado com exatamente uma casa decimal
         // Primeiro, garante que o valor tenha exatamente uma casa decimal
@@ -71,8 +68,6 @@ function validarPontosEValores($valor)
         return $valorFormatado;
     } elseif ($quantidadePontos > 1) {
 
-        $valor = str_replace(',', '', $valor);
-
         // Encontrar a posição do último ponto
         $posUltimoPonto = strrpos($valor, '.');
 
@@ -96,4 +91,5 @@ function validarPontosEValores($valor)
         return $valor;
     }
 }
+
 

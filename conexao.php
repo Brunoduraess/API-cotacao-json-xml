@@ -5,6 +5,8 @@ $dbPassword = 'db pass';
 $dbName = 'db name';
 
 
+
+
 $conexao = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
 $createTable = "CREATE TABLE `api_cotacao` (
@@ -16,5 +18,6 @@ $createTable = "CREATE TABLE `api_cotacao` (
   `response` text NOT NULL,
   `status` varchar(100) NOT NULL,
   `error_message` text DEFAULT NULL,
+  `error_number` int(3),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;";

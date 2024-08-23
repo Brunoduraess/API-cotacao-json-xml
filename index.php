@@ -1,4 +1,18 @@
 <?php
+// Defina o token de autorização esperado
+$expectedToken = "Bearer e0c6fd31-b699-46ae-95cd-efebfcd78f55";
+
+// Captura o cabeçalho "Authorization"
+$headers = apache_request_headers();
+$authHeader = $headers['Authorization'] ?? '';
+
+if ($authHeader !== $expectedToken) {
+    // Token inválido ou não fornecido
+    header('HTTP/1.1 401 Unauthorized');
+    echo json_encode(['error' => 'Token de autorização inválido']);
+    exit;
+}
+
 // URL do WSDL e do serviço SOAP
 $wsdl = 'https://ssw.inf.br/ws/sswCotacaoColeta/index.php?wsdl';
 $serviceUrl = 'https://ssw.inf.br/ws/sswCotacaoColeta/index.php';
@@ -8,7 +22,7 @@ $jsonData = file_get_contents('php://input');
 
 $requestData = json_decode($jsonData, true);
 
-include ('function.php');
+include('function.php');
 
 $cnpj_pagador = limparCaracteres($requestData['cnpjPagador']);
 $cnpj_remetente = limparCaracteres($requestData['cnpjRemetente']);
@@ -17,9 +31,11 @@ $cep_origem = limparCaracteres($requestData['cepOrigem']);
 $cep_destino = limparCaracteres($requestData['cepDestino']);
 $valor = validarPontosEValores($requestData['valorNF']);
 
-// $volume = $requestData['quantidade'] * $requestData['altura'] * $requestData['largura'] * $requestData['comprimento'];
+$volume = round($requestData['volume'], 3);
 
-$observacao = $requestData['material'] . " - " . $requestData['embalagem'];
+$telSemCP = substr($requestData['contact.number'], 2);
+
+$observacao = "COTACAO SACFLOW IA / WPP:" . $telSemCP . " / " . $volume . " / " . $requestData['material'] . " - " . $requestData['embalagem'];
 
 // Verifica se o JSON foi recebido corretamente
 if ($requestData) {
@@ -38,7 +54,7 @@ if ($requestData) {
          <valorNF xsi:type="xsd:decimal">{$valor}</valorNF>
          <quantidade xsi:type="xsd:integer">{$requestData['quantidade']}</quantidade>
          <peso xsi:type="xsd:decimal">{$requestData['peso']}</peso>
-         <volume xsi:type="xsd:decimal">{$requestData['volume']}</volume>
+         <volume xsi:type="xsd:decimal">{$volume}</volume>
          <mercadoria xsi:type="xsd:integer">{$requestData['mercadoria']}</mercadoria>
          <ciffob xsi:type="xsd:string">{$requestData['ciffob']}</ciffob>
          <cnpjRemetente xsi:type="xsd:string">{$cnpj_remetente}</cnpjRemetente>
@@ -49,9 +65,6 @@ if ($requestData) {
          <entDificil xsi:type="xsd:string">{$requestData['entDificil']}</entDificil>
          <destContribuinte xsi:type="xsd:string">{$requestData['destContribuinte']}</destContribuinte>
          <qtdePares xsi:type="xsd:integer">{$requestData['qtdePares']}</qtdePares>
-         <!-- <altura xsi:type="xsd:decimal">{$requestData['altura']}</altura>
-         <largura xsi:type="xsd:decimal">{$requestData['largura']}</largura>
-         <comprimento xsi:type="xsd:decimal">{$requestData['comprimento']}</comprimento> -->
          <fatorMultiplicador xsi:type="xsd:integer">{$requestData['fatorMultiplicador']}</fatorMultiplicador>
       </urn:cotar>
    </soapenv:Body>
@@ -98,31 +111,80 @@ XML;
 
     $responseArray = json_decode($responseJson, true);
 
-    include ('conexao.php');
+    include('conexao.php');
 
-    if ($responseArray['mensagem'] == "OK"){
+    if ($responseArray['mensagem'] == "OK") {
         $status = "OK";
         $errorMessage = "";
+        $errorNumber = "null";
     } else {
         $status = "ERRO";
         $errorMessage = $responseArray['mensagem'];
+
+        switch ($responseArray['mensagem']) {
+            case "Para esta cidade de origem, por favor, entre em contato via whatsapp pelo telefone (24)99834-2599 para falar com nossa equipe":
+                $errorNumber = 1;
+                break;
+            case "Cidade destino n&atilde;o atendida.":
+                $errorNumber = 2;
+                break;
+            case "PESSOA FISICA NAO PODE SER CLIENTE PAGADOR":
+                $errorNumber = 3;
+                break;
+            case "Informe peso e/ou cubagem.<br>":
+                $errorNumber = 4;
+                break;
+            case "OK Entrega em &aacute;rea de risco (opc304).<br>":
+                $errorNumber = 5;
+                break;
+            case "CNPJ do pagador deve ser diferente do CNPJ do destinat&aacute;rio para frete CIF.":
+                $errorNumber = 6;
+                break;
+            case "Valor de nota fiscal inv&aacute;lida.<br>":
+                $errorNumber = 7;
+                break;
+            case "OK Coleta em &aacute;rea de risco (opc 304).<br>":
+                $errorNumber = 8;
+                break;
+            case "Volume (m3) deve ser no maximo 170 m3.":
+                $errorNumber = 9;
+                break;
+            case "CNPJ/CPF INV&Aacute;LIDO":
+                $errorNumber = 10;
+                break;
+            case "Cidade origem n&atilde;o encontrada":
+                $errorNumber = 11;
+                break;
+            default:
+                $errorNumber = 0;
+                break;
+
+        }
+
+        $responseArray['errorNumber'] = $errorNumber;
+
+
     }
 
-    $grava_log = "INSERT INTO api_cotacao(user, phone, request, response, status, error_message) VALUES (
+    $grava_log = "INSERT INTO api_cotacao(user, phone, request, response, status, error_message, error_number) VALUES (
         '" . $requestData['contact.name'] . "',
         '" . $requestData['contact.number'] . "',
         '" . $jsonData . "',
         '" . $responseJson . "',
         '" . $status . "', 
-        '" . $errorMessage ."')";
+        '" . $errorMessage . "', 
+        " . $errorNumber . ")";
 
     mysqli_query($conexao, $grava_log);
 
-    echo $responseJson;
+
+    // Reencoda o array de volta para JSON
+    $responseJsonAtualizado = json_encode($responseArray, JSON_PRETTY_PRINT);
+
+    echo $responseJsonAtualizado;
 
 } else {
     // Retorna um erro se os dados JSON não forem recebidos corretamente
     header('HTTP/1.1 400 Bad Request');
     echo json_encode(['error' => 'Invalid JSON input']);
 }
-?>
