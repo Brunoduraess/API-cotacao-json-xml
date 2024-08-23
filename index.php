@@ -1,6 +1,6 @@
 <?php
 // Defina o token de autorização esperado
-$expectedToken = "";
+$expectedToken = "Aqui vai o token de autenticação";
 
 // Captura o cabeçalho "Authorization"
 $headers = apache_request_headers();
