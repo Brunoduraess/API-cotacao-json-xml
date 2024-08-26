@@ -92,4 +92,35 @@ function validarPontosEValores($valor)
     }
 }
 
+function validaDiaUtil($prazo)
+{
+
+    $hora = date("H", strtotime($prazo));
+
+    if ($hora > 11) {
+        $prazo = date('Y-m-d', strtotime('+1 days', strtotime($prazo)));
+    }
+
+    $dia = date("D", strtotime($prazo));
+    $hora = date("H", strtotime($prazo));
+    $ano = date("Y", strtotime($prazo));
+
+    $feriados = ['' . $ano . '-01-01', '' . $ano . '-04-21', '' . $ano . '-05-01', '' . $ano . '-05-30', '' . $ano . '-09-07', '' . $ano . '-10-12', '' . $ano . '-11-02', '' . $ano . '-11-15', '' . $ano . '-11-20', '' . $ano . '-12-25'];
+
+    //Valida se a data de entrada é feriado
+
+    while ($dia == "Sat" || $dia == "Sun" || in_array($prazo, $feriados)) {
+        // Adiciona um dia à data de coleta
+        $prazo = date('Y-m-d', strtotime('+1 day', strtotime($prazo)));
+
+        // Atualiza o dia da semana da nova data de coleta
+        $dia = date("D", strtotime($prazo));
+    }
+
+    $prazo = date("Y-m-d", strtotime($prazo)) . "T";
+
+    return $prazo;
+
+}
+
 

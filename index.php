@@ -1,6 +1,12 @@
 <?php
+//Define o horário local
+date_default_timezone_set('America/Bahia');
+
+//bloquear o retorno de erros que não sejam da API
+error_reporting(0);
+
 // Defina o token de autorização esperado
-$expectedToken = "Bearer e0c6fd31-b699-46ae-95cd-efebfcd78f55";
+$expectedToken = "";
 
 // Captura o cabeçalho "Authorization"
 $headers = apache_request_headers();
@@ -25,7 +31,6 @@ $requestData = json_decode($jsonData, true);
 include('function.php');
 
 $cnpj_pagador = limparCaracteres($requestData['cnpjPagador']);
-$cnpj_remetente = limparCaracteres($requestData['cnpjRemetente']);
 $cnpj_destinatario = limparCaracteres($requestData['cnpjDestinatario']);
 $cep_origem = limparCaracteres($requestData['cepOrigem']);
 $cep_destino = limparCaracteres($requestData['cepDestino']);
@@ -111,7 +116,13 @@ XML;
 
     $responseArray = json_decode($responseJson, true);
 
-    include('conexao.php');
+    $prazo = $responseArray['prazo'];
+
+    $prazo = date('Y-m-d', strtotime('+' . $prazo . ' days'));
+
+    $prazo = validaDiaUtil($prazo);
+
+    $responseArray['dataPrazo'] =  date('d-m-Y', strtotime($prazo));
 
     if ($responseArray['mensagem'] == "OK") {
         $status = "OK";
@@ -165,6 +176,9 @@ XML;
 
 
     }
+
+    
+    include('conexao.php');
 
     $grava_log = "INSERT INTO api_cotacao(user, phone, request, response, status, error_message, error_number) VALUES (
         '" . $requestData['contact.name'] . "',
