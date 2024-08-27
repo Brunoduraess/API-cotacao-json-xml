@@ -122,7 +122,7 @@ XML;
 
     $prazo = validaDiaUtil($prazo);
 
-    $responseArray['dataPrazo'] =  date('d-m-Y', strtotime($prazo));
+    $responseArray['dataPrazo'] = date('d-m-Y', strtotime($prazo));
 
     if ($responseArray['mensagem'] == "OK") {
         $status = "OK";
@@ -177,23 +177,24 @@ XML;
 
     }
 
-    
+
+    // Reencoda o array de volta para JSON
+    $responseJsonAtualizado = json_encode($responseArray, JSON_PRETTY_PRINT);
+
+
     include('conexao.php');
 
     $grava_log = "INSERT INTO api_cotacao(user, phone, request, response, status, error_message, error_number) VALUES (
         '" . $requestData['contact.name'] . "',
         '" . $requestData['contact.number'] . "',
         '" . $jsonData . "',
-        '" . $responseJson . "',
+        '" . $responseJsonAtualizado . "',
         '" . $status . "', 
         '" . $errorMessage . "', 
         " . $errorNumber . ")";
 
     mysqli_query($conexao, $grava_log);
 
-
-    // Reencoda o array de volta para JSON
-    $responseJsonAtualizado = json_encode($responseArray, JSON_PRETTY_PRINT);
 
     echo $responseJsonAtualizado;
 
