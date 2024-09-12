@@ -1,8 +1,9 @@
 <?php
-$dbHost = '10.10.0.239';
-$dbUsername = 'sistemas';
-$dbPassword = 'rmv*7653Gums';
-$dbName = 'transportegene03';
+
+$dbHost = '';
+$dbUsername = '';
+$dbPassword = '';
+$dbName = '';
 
 
 
@@ -38,4 +39,8 @@ $createTable = "CREATE TABLE `api_cotacao` (
   `token` text NULL,
   `desistencia` text NULL,
   PRIMARY KEY (`id`)
+<<<<<<< HEAD
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+=======
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+>>>>>>> 28d52402d3edb42ae1adf59735ffa5562f7aba25
