@@ -153,8 +153,9 @@ XML;
     $responseData = json_decode($responseJson, true);
 
     // Caso a cotação tenha sido executada com sucesso na API
-    if ($responseData['mensagem'] == "OK") {
+    if ($responseData['erro'] === "0") {
         $status = "OK";
+        $responseData['erro'] == "0";
         $errorMessage = "";
         $errorNumber = "null";
 
@@ -176,10 +177,57 @@ XML;
         }
     } else {
         $status = "ERRO";
+        $responseData['erro'] == "1";
         $errorMessage = $responseData['mensagem'];
-        $errorNumber = $responseData['codigo'];
-        $dataDb = "null";
         $frete = "null";
+        $dataDb = "null";
+        $responseData['prazo'] = "null";
+        $responseData['mediaKG'] = "null";
+        $responseData['dataPrazo'] = "null";
+        $responseData['cotacao'] = "";
+        $responseData['token'] = "";
+
+        switch ($responseData['mensagem']) {
+            case "Para esta cidade de origem, por favor, entre em contato via whatsapp pelo telefone (24)99834-2599 para falar com nossa equipe":
+                $errorNumber = 1;
+                break;
+            case "Cidade destino n&atilde;o atendida.":
+                $errorNumber = 2;
+                break;
+            case "PESSOA FISICA NAO PODE SER CLIENTE PAGADOR":
+                $errorNumber = 3;
+                break;
+            case "Informe peso e/ou cubagem.<br>":
+                $errorNumber = 4;
+                break;
+            case "OK Entrega em &aacute;rea de risco (opc304).<br>":
+                $errorNumber = 5;
+                break;
+            case "CNPJ do pagador deve ser diferente do CNPJ do destinat&aacute;rio para frete CIF.":
+                $errorNumber = 6;
+                break;
+            case "Valor de nota fiscal inv&aacute;lida.<br>":
+                $errorNumber = 7;
+                break;
+            case "OK Coleta em &aacute;rea de risco (opc 304).<br>":
+                $errorNumber = 8;
+                break;
+            case "Volume (m3) deve ser no maximo 170 m3.":
+                $errorNumber = 9;
+                break;
+            case "CNPJ/CPF INV&Aacute;LIDO":
+                $errorNumber = 10;
+                break;
+            case "Cidade origem n&atilde;o encontrada":
+                $errorNumber = 11;
+                break;
+            default:
+                $errorNumber = 0;
+                break;
+
+        }
+
+        $responseData['errorNumber'] = $errorNumber;
     }
 
     // Reencoda o array de volta para JSON
@@ -223,7 +271,14 @@ XML;
         '" . $responseData['token'] . "')";
 
 
-    mysqli_query($conexao, $sql);
+    $executa = mysqli_query($conexao, $sql);
+
+    if (!$executa) {
+        $responseData['error_insert_db'] = $sql;         
+    }
+
+    // Reencoda o array de volta para JSON
+    $responseJsonAtualizado = json_encode($responseData, JSON_PRETTY_PRINT);
 
     return $responseJsonAtualizado;
 
@@ -245,18 +300,18 @@ function retorno($requestData)
 }
 
 // Roteamento de ação
-$action = $requestData['action'] ?? '';
+$action = $requestData['action'];
 
-if ($action === 'cotar') {
+if ($action == 'cotar') {
     $responseJson = cotar($requestData);
 
     echo $responseJson;
 
-} elseif ($action === 'retorno') {
+} elseif ($action == 'retorno') {
     $responseJson = retorno($requestData);
     echo $responseJson;
 } else {
     // Ação inválida ou não fornecida
     header('HTTP/1.1 400 Bad Request');
-    echo json_encode(['error' => 'Ação inválida']);
+    echo json_encode(['error' => $action]);
 }

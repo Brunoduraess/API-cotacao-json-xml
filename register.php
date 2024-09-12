@@ -84,6 +84,12 @@ if ($responseData['mensagem'] == "OK") {
 
 }
 
+if ($status == "OK"){
+    $responseData['erro'] == "0";
+} else {
+    $responseData['erro'] == "1";
+}
+
 
 // Reencoda o array de volta para JSON
 $responseJsonAtualizado = json_encode($responseData, JSON_PRETTY_PRINT);
