@@ -221,6 +221,12 @@ XML;
             case "Cidade origem n&atilde;o encontrada":
                 $errorNumber = 11;
                 break;
+            case "OK Entrega em &aacute;rea de risco (opc304).<br> Coleta em &aacute;rea de risco (opc 304).<br>";
+                $errorNumber = 12;
+                break;
+            case "Cidade origem n&atilde;o atendida. Cota&ccedil;&atilde;o deve ser cadastrada em unidade que efetuar&aacute; a emiss&atilde;o do CTRC.<br>";
+                $errorNumber = 13;
+                break;
             default:
                 $errorNumber = 0;
                 break;
