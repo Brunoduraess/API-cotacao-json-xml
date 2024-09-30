@@ -30,8 +30,6 @@ $requestData = json_decode($jsonData, true);
 //Guarda no array para gravar no banco
 $requestData['input'] = $jsonData;
 
-
-
 // Verifica se o JSON foi recebido corretamente
 if (!$requestData) {
     // Retorna um erro se os dados JSON não forem recebidos corretamente
