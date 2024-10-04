@@ -1,5 +1,7 @@
 <?php
 
+include 'conexao.php';
+
 // Função para realizar a solicitação SOAP e retornar o resultado como JSON
 function callSoapApi($wsdl, $serviceUrl, $soapRequest)
 {
@@ -59,6 +61,29 @@ function dadosTabela($numCotacao)
     $responseDataTabela = json_decode($responseJsonTabela, true);
 
     return $responseDataTabela['tabCalculo'];
+}
+
+function validaCurva($cnpj)
+{
+
+    global $conexao;
+
+    $buscaCnpj = "SELECT cnpj FROM tabela_curvas WHERE cnpj = '$cnpj'";
+    $query = $conexao->query($buscaCnpj);
+
+    if (mysqli_num_rows($query) > 0) {
+        $responseData['erro'] = 1;
+        $responseData['error_number'] = 15;
+        $responseData['error_message'] = "Cliente com curva de faturamento entre A e C";
+    } else {
+        $responseData['erro'] = 0;
+    }
+
+
+    $responseJson = json_encode($responseData, true);
+
+    return $responseJson;
+
 }
 
 // Função para a ação de cotar

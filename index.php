@@ -3,10 +3,10 @@
 date_default_timezone_set('America/Bahia');
 
 // Bloquear o retorno de erros que não sejam da API
-error_reporting(0);
+// error_reporting(0);
 
 // Defina o token de autorização esperado
-$expectedToken = "Bearer e0c6fd31-b699-46ae-95cd-efebfcd78f55";
+$expectedToken = "";
 
 // Captura o cabeçalho "Authorization"
 $headers = apache_request_headers();
@@ -38,12 +38,19 @@ if (!$requestData) {
     exit;
 } else {
     include('function.php');
-    
+
     // Roteamento de ação
     $action = $requestData['action'];
 
     if ($action == 'cotar') {
-        $responseJson = cotar($requestData);
+
+        $responseJson = validaCurva($requestData['cnpjPagador']);
+
+        $jsonDecode = json_decode($responseJson, true);
+
+        if ($jsonDecode['erro'] == 0) {
+            $responseJson = cotar($requestData);
+        }
 
         echo $responseJson;
 

@@ -1,10 +1,9 @@
 <?php
 
-$dbHost = '10.10.0.239';
-$dbUsername = 'sistemas';
-$dbPassword = 'rmv*7653Gums';
-$dbName = 'transportegene03';
-
+$dbHost = '';
+$dbUsername = '';
+$dbPassword = '';
+$dbName = '';
 
 $conexao = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
 
@@ -38,3 +37,17 @@ $createTable = "CREATE TABLE `api_cotacao` (
   `desistencia` text NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+
+
+// function pesquisa($busca)
+// {
+//   global $conexao;
+
+//   $query = $conexao->query($busca);
+
+//   if (mysqli_num_rows($query) > 0) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// }
