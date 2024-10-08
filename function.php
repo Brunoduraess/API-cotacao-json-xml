@@ -179,7 +179,7 @@ function cotar($requestData)
     // Caso a cotação tenha sido executada com sucesso na API
     if ($responseData['erro'] === "0") {
         $status = "OK";
-        $responseData['erro'] == "0";
+        $responseData['erro'] = "0";
         $errorMessage = "";
         $errorNumber = "null";
 
@@ -201,7 +201,7 @@ function cotar($requestData)
         }
     } else {
         $status = "ERRO";
-        $responseData['erro'] == "1";
+        $responseData['erro'] = "1";
         $errorMessage = $responseData['mensagem'];
         $frete = "null";
         $dataDb = "null";

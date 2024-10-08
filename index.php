@@ -3,10 +3,10 @@
 date_default_timezone_set('America/Bahia');
 
 // Bloquear o retorno de erros que não sejam da API
-// error_reporting(0);
+error_reporting(0);
 
 // Defina o token de autorização esperado
-$expectedToken = "";
+$expectedToken = "Bearer e0c6fd31-b699-46ae-95cd-efebfcd78f55";
 
 // Captura o cabeçalho "Authorization"
 $headers = apache_request_headers();
@@ -44,16 +44,28 @@ if (!$requestData) {
 
     if ($action == 'cotar') {
 
-        $responseJson = validaCurva($requestData['cnpjPagador']);
+        // $responseJson = validaCurva($requestData['cnpjPagador']);
+
+        $responseJson = cotar($requestData);
 
         $jsonDecode = json_decode($responseJson, true);
 
         if ($jsonDecode['erro'] == 0) {
-            $responseJson = cotar($requestData);
+            $responseJsonCurva = validaCurva($requestData['cnpjPagador']);
+
+            $jsonDecodeCurva = json_decode($responseJsonCurva, true);
         }
 
-        echo $responseJson;
+        if ($jsonDecodeCurva['erro'] == 1) {
+            $jsonDecodeCurva['cotacao'] = $jsonDecode['cotacao'];
+            $jsonDecodeCurva['frete'] = '110,00';
 
+            $responseJsonCurva = json_encode($jsonDecodeCurva, true);
+
+            echo $responseJsonCurva;
+        } else {
+            echo $responseJson;
+        }
     } elseif ($action == 'retorno') {
         $responseJson = retorno($requestData);
         echo $responseJson;
